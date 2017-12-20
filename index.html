@@ -1,3 +1,8 @@
+<!-- O angular trabalha em cima de diretivas -->
+<!-- trechos de codigo ja implementadas -->
+<!-- que o angular consegue ler atraves de um processo de compilacao -->
+<!-- com isso podemos ter varias funcionalidades prontas -->
+<!-- e reaproveitar em varios momentos -->
 <html ng-app="listaTelefonica">
 <head>
 	<meta charset="Utf-8">
@@ -18,6 +23,9 @@
 		.selecionado {
 			background-color: yellow;
 		}
+		.negrito {
+			 font-weight: bold;
+		}
 	</style>
 	<script src="lib/angular.min.js"></script>
 	<script src="lib/angular-messages.js"></script>
@@ -37,12 +45,23 @@
 				{nome: "Gvt", codigo: 51, categoria: "Fixo"},
 				{nome: "Embratel", codigo: 61, categoria: "Fixo"}
 			];
+			//poderiamos estar passando variavel por variavel, mas podemos criar
+        	//uma abstracao, que no caso pode ser contato, contendo nome e telefone
+        	// $scope.adicionarContato = function(nome, telefone) {
 			$scope.adicionarContato =function(contato) {
 				$scope.contatos.push(contato);
 				$scope.contato = {};
 				$scope.contatoForm.$setPristine();
 			};
 			$scope.apagarContatos = function (contatos) {
+				//filtrando os contatos selecionados com filter
+				// var contatosSelecionados = contatos.filter(function(contato){
+				//     if(contato.selecionado) return contato;
+				// });
+				// console.log(contatosSelecionados);
+				//nao precisamos deletar os contatos selecionados
+				//apenas podemos retornar os contatos nao selecionados 
+				//e atribuir novamente a $scope.contatos
 				$scope.contatos =contatos.filter(function (contato) {
 					if(!contato.selecionado) return contato;
 				})
@@ -66,11 +85,18 @@
 				<th>Operadora</th>
 				<th></th>
 			</tr>
-			<tr ng-class="{selecionado: contato.selecionado}" ng-repeat="contato in contatos">
+			<!-- ng-class - podemos definir se o componente sera renderizado com uma classe de estilo ou nao -->
+            <!-- no caso estamos verificando se contato esta selecionado -->
+            <!-- no javascript quando temos uma '' - string podemos utilizala como valores separadas por ' ' espacos -->
+            <!-- ai teriamos se o contato estiver selecionado - as classes selecionado e negrito -->
+			<!--selecionado: contato.selecionado = esse selecinado é para ele ficar amarelo-->
+			<tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos">
 				<td><input type="checkbox" ng-model="contato.selecionado"/></td>
 				<td>{{contato.nome}}</td>
 				<td>{{contato.telefone}}</td>
 				<td>{{contato.operadora.nome}}</td>
+			<!-- ng-style="{'background-color': contato.cor}" - utilizando para aplicar um estilo especifico-->
+            <!-- no caso background-color dinamicamente de acordo com a cor do contato -->
 				<td><div style="width: 20px; height: 20px;" ng-style="{'background-color': contato.cor}"></div></td>
 			</tr>
 		</table>
@@ -78,8 +104,18 @@
 		<form name="contatoForm">
 			<input class="form-control" type="text" ng-minlength="10" ng-model="contato.nome" name="nome" placeholder="Nome" ng-required="true"/>
 			<input class="form-control" type="text" ng-model="contato.telefone" name="telefone" placeholder="Telefone" ng-required="true" ng-pattern="/^\d{5}-\d{4}$/"/>
+		<!-- ng-options="operadora.nome for operadora in operadoras" - estamos indicando que os valores do options -->
+        <!-- serao o nome da operadora -->
+        <!-- <select class="form-control" ng-model="contato.operadora" ng-options="operadora.nome for operadora in operadoras"> -->
+            
+        <!-- ng-options="operadora.codigo as operadora.nome for operadora in operadoras" - estamos indicando que o valor sera o codigo, e o label o nome da operadora-->
+        <!-- <select class="form-control" ng-model="contato.operadora" ng-options="operadora.codigo as operadora.nome for operadora in operadoras"> -->
+
+        <!-- podemos agrupar os registros do select - group by - ele agrupa os registros de acordo com um expressao-->
 			<select class="form-control" ng-model="contato.operadora" 
 				ng-options="operadora.nome group by operadora.categoria for operadora in operadoras">
+				<!-- como contato.operadora estar undefined, tera um valor em branco-->
+                <!-- para tirar este comportamento, utilizamos um option para o campo vazio-->
 				<option value="">Selecione uma operadora</option>
 			</select>
 		</form>  
@@ -100,7 +136,9 @@
 		</div>
 		<button class="btn btn-primary btn-block" ng-click="adicionarContato(contato)" 
 			ng-disabled="!contato.nome || !contato.telefone">Adicionar Contato</button>
-
+		<!-- com o ng-show - estamos o angular faz apenas um display none no componente, sendo assim o componente renderizado, apenas nao esta visivel -->
+		<!-- com ng-if - estamos indicando que este componente nao sera renderizado, apenas quando for verdadeiro -->
+        <!-- indicado para aplicacaoes performaticas -->
 		<button class="btn btn-danger btn-block" ng-click="apagarContatos(contatos)"
 			ng-if="isContatoSelecionado(contatos)">Apagar Contato</button>
 	</div>
