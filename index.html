@@ -32,7 +32,7 @@
 	<script src="lib/angular-locale_pt-br.js"></script>
 	<script>
 		angular.module("listaTelefonica", ["ngMessages"]); 
-		angular.module("listaTelefonica").controller("listaTelefonicaCtrl", function($scope, $filter) {
+		angular.module("listaTelefonica").controller("listaTelefonicaCtrl", function($scope, $http, $filter) {
 			$scope.app = "Lista Telefonica";
 			$scope.contatos  = [
 				{nome: $filter('uppercase')("Caic"), telefone: "9823913", data: new Date(), operadora: {nome: "Oi", codigo: 14, categoria: "Celular"}, cor: "blue"},
@@ -46,6 +46,7 @@
 				{nome: "Gvt", codigo: 51, categoria: "Fixo", preco: 1},
 				{nome: "Embratel", codigo: 61, categoria: "Fixo", preco: 2}
 			];
+			//get -> Obter recursos || post -> Criar entidade 
 			//poderiamos estar passando variavel por variavel, mas podemos criar
         	//uma abstracao, que no caso pode ser contato, contendo nome e telefone
         	// $scope.adicionarContato = function(nome, telefone) {
