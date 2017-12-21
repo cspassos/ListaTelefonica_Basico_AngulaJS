@@ -10,7 +10,7 @@
 	<link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.css">
 	<style>
 		.jumbotron {
-			width: 400px;
+			width: 600px;
 			text-align: center;
 			margin: 20px auto auto auto;
 		}
@@ -29,21 +29,22 @@
 	</style>
 	<script src="lib/angular.min.js"></script>
 	<script src="lib/angular-messages.js"></script>
+	<script src="lib/angular-locale_pt-br.js"></script>
 	<script>
 		angular.module("listaTelefonica", ["ngMessages"]); 
-		angular.module("listaTelefonica").controller("listaTelefonicaCtrl", function($scope) {
+		angular.module("listaTelefonica").controller("listaTelefonicaCtrl", function($scope, $filter) {
 			$scope.app = "Lista Telefonica";
 			$scope.contatos  = [
-				{nome: "Caic", telefone: "9823913", cor: "blue"},
-				{nome: "Pedro", telefone: "312312", cor: "red"},
-				{nome: "Alba", telefone: "55555555", cor: "yellow"}
+				{nome: $filter('uppercase')("Caic"), telefone: "9823913", data: new Date(), operadora: {nome: "Oi", codigo: 14, categoria: "Celular"}, cor: "blue"},
+				{nome: "Pedro", telefone: "312312", data: new Date(), operadora: {nome: "Tim", codigo: 41, categoria: "Celular"}, cor: "red"},
+				{nome: "Alba", telefone: "55555555", data: new Date(), operadora: {nome: "Vivo", codigo: 15, categoria: "Celular"}, cor: "yellow"}
 			];
 			$scope.operadoras = [
-				{nome: "Oi", codigo: 14, categoria: "Celular"},
-				{nome: "Vivo", codigo: 15, categoria: "Celular"},
-				{nome: "Tim", codigo: 41, categoria: "Celular"},
-				{nome: "Gvt", codigo: 51, categoria: "Fixo"},
-				{nome: "Embratel", codigo: 61, categoria: "Fixo"}
+				{nome: "Oi", codigo: 14, categoria: "Celular", preco: 1},
+				{nome: "Vivo", codigo: 15, categoria: "Celular", preco: 2},
+				{nome: "Tim", codigo: 41, categoria: "Celular", preco: 3},
+				{nome: "Gvt", codigo: 51, categoria: "Fixo", preco: 1},
+				{nome: "Embratel", codigo: 61, categoria: "Fixo", preco: 2}
 			];
 			//poderiamos estar passando variavel por variavel, mas podemos criar
         	//uma abstracao, que no caso pode ser contato, contendo nome e telefone
@@ -70,19 +71,25 @@
 				return isContatoSelecionado = contatos.some(function (contato) {
 					return contato.selecionado;
 				})
-			}
+			};
+			$scope.ordenarPor = function (campo) {
+				$scope.criterioDeOrdenacao = campo;
+			};
+
 		});
 	</script>
 </head>
 <body ng-controller="listaTelefonicaCtrl">
 	<div class="jumbotron">
 		<h3>{{app}}</h3>
-		<table class="table" ng-show="contatos.length > 0">
+		<input class="form-control" type="text" ng-model="criterioDeBusca" placeholder="O que você esta buscando?"/>
+		<table class="table table-striped" ng-show="contatos.length > 0">
 			<tr>
 				<th></th>
-				<th>Nome</th>
+				<th><a href="" ng-click="ordenarPor('nome')">Nome</a></th>
 				<th>Tefefone</th>
-				<th>Operadora</th>
+				<th><a href="" ng-click="ordenarPor('operadora')">Operadora</th>
+				<th>Data</th>
 				<th></th>
 			</tr>
 			<!-- ng-class - podemos definir se o componente sera renderizado com uma classe de estilo ou nao -->
@@ -90,11 +97,14 @@
             <!-- no javascript quando temos uma '' - string podemos utilizala como valores separadas por ' ' espacos -->
             <!-- ai teriamos se o contato estiver selecionado - as classes selecionado e negrito -->
 			<!--selecionado: contato.selecionado = esse selecinado é para ele ficar amarelo-->
-			<tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos">
+			<!--adicionando o filter:{nome: criterioDeBusca} ele ja consegue fazer a busca pelo criterioDeBusca(campo do input)-->
+			<!--orderBy -> ordenação-->
+			<tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos | limitTo:2 | filter:{nome: criterioDeBusca} | orderBy:criterioDeOrdenacao">
 				<td><input type="checkbox" ng-model="contato.selecionado"/></td>
 				<td>{{contato.nome}}</td>
 				<td>{{contato.telefone}}</td>
-				<td>{{contato.operadora.nome}}</td>
+				<td>{{contato.operadora.nome | lowercase}}</td>
+				<td>{{contato.data | date: 'dd/MM/yyyy HH:mm'}}</td>
 			<!-- ng-style="{'background-color': contato.cor}" - utilizando para aplicar um estilo especifico-->
             <!-- no caso background-color dinamicamente de acordo com a cor do contato -->
 				<td><div style="width: 20px; height: 20px;" ng-style="{'background-color': contato.cor}"></div></td>
@@ -112,24 +122,26 @@
         <!-- <select class="form-control" ng-model="contato.operadora" ng-options="operadora.codigo as operadora.nome for operadora in operadoras"> -->
 
         <!-- podemos agrupar os registros do select - group by - ele agrupa os registros de acordo com um expressao-->
+		<!-- currency -> transforma numero em dolar e com o import de locale ele fica em Real-->
 			<select class="form-control" ng-model="contato.operadora" 
-				ng-options="operadora.nome group by operadora.categoria for operadora in operadoras">
+				ng-options="operadora.nome +'( ' + (operadora.preco | currency) + ' )' group by operadora.categoria for operadora in operadoras | orderBy:'nome'">
 				<!-- como contato.operadora estar undefined, tera um valor em branco-->
                 <!-- para tirar este comportamento, utilizamos um option para o campo vazio-->
 				<option value="">Selecione uma operadora</option>
 			</select>
 		</form>  
-		<div ng-messages="contatoForm.nome.$error" class="alert alert-danger">
+		<div ng-show="contatoForm.nome.$dirty" ng-messages="contatoForm.nome.$error" class="alert alert-danger">
 			<div ng-message="required">
 				Por favor preencha o campo nome!
 			</div>
-			<div ng-message="minlength">
+			<div ng-message="minlength" class="class=" alert alert-danger "">
 				O campo nome deve ter no mínimo 10 caracteres!
+			</div>
 		</div>
-
-		</div>
-		<div ng-show="contatoForm.telefone.$error.required && contatoForm.telefone.$dirty" class="alert alert-danger">
+		<div ng-show="contatoForm.telefone.$dirty" ng-messages="contatoForm.telefone.$error">
+			<div ng-message="required"  class="alert alert-danger">
 			Por favor preencha o campo telefone!
+			</div>
 		</div>
 		<div ng-show="contatoForm.telefone.$error.pattern" class="alert alert-danger">
 			Campo telefone deve ter o format xxxxx-xxxx!
