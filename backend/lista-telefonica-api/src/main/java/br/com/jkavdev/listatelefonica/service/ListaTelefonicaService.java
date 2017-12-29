@@ -1,5 +1,6 @@
 package br.com.jkavdev.listatelefonica.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -12,7 +13,10 @@ import br.com.jkavdev.listatelefonica.model.Operadora;
 @Service
 public class ListaTelefonicaService {
 
-	public List<Contato> contatos() {
+	private static List<Contato> contatos;
+
+	static {
+		contatos = new ArrayList<>();
 
 		Operadora oi = new Operadora("oi", "14", "celular", 2);
 		Operadora vivo = new Operadora("vivo", "15", "celular", 1);
@@ -20,9 +24,15 @@ public class ListaTelefonicaService {
 		Operadora gvt = new Operadora("gvt", "25", "fixo", 1);
 		Operadora embratel = new Operadora("embratel", "21", "fixo", 2);
 
-		return Arrays.asList(new Contato("Bruno", "9999-2222", new Date(), oi),
+		List<Contato> contatosCriados = Arrays.asList(new Contato("Bruno", "9999-2222", new Date(), oi),
 				new Contato("Sandra", "9934-5554", new Date(), vivo),
 				new Contato("Mariana", "9922-0468", new Date(), tim));
+
+		contatos.addAll(contatosCriados);
+	}
+
+	public List<Contato> contatos() {
+		return contatos;
 	}
 
 	public List<Operadora> operadoras() {
@@ -30,4 +40,7 @@ public class ListaTelefonicaService {
 				new Operadora("tim", "41", "celular", 32), new Operadora("gvt", "25", "fixo", 1));
 	}
 
+	public void adicionarContato(Contato contato) {
+		contatos.add(contato);
+	}
 }

@@ -27,34 +27,45 @@
 			 font-weight: bold;
 		}
 	</style>
-	<script src="lib/angular.min.js"></script>
+	<script src="lib/angular.js"></script>
 	<script src="lib/angular-messages.js"></script>
 	<script src="lib/angular-locale_pt-br.js"></script>
 	<script>
 		angular.module("listaTelefonica", ["ngMessages"]); 
 		angular.module("listaTelefonica").controller("listaTelefonicaCtrl", function($scope, $http, $filter) {
 			$scope.app = "Lista Telefonica";
-			$scope.contatos  = [
-				{nome: $filter('uppercase')("Caic"), telefone: "9823913", data: new Date(), operadora: {nome: "Oi", codigo: 14, categoria: "Celular"}, cor: "blue"},
-				{nome: "Pedro", telefone: "312312", data: new Date(), operadora: {nome: "Tim", codigo: 41, categoria: "Celular"}, cor: "red"},
-				{nome: "Alba", telefone: "55555555", data: new Date(), operadora: {nome: "Vivo", codigo: 15, categoria: "Celular"}, cor: "yellow"}
-			];
-			$scope.operadoras = [
-				{nome: "Oi", codigo: 14, categoria: "Celular", preco: 1},
-				{nome: "Vivo", codigo: 15, categoria: "Celular", preco: 2},
-				{nome: "Tim", codigo: 41, categoria: "Celular", preco: 3},
-				{nome: "Gvt", codigo: 51, categoria: "Fixo", preco: 1},
-				{nome: "Embratel", codigo: 61, categoria: "Fixo", preco: 2}
-			];
+			$scope.contatos  = [];
+			$scope.operadoras = [];
+
+			var carregarContatos =function () {
+				$http.get('http://localhost:8080/listaTelefonica/contatos')
+					.success(function (data, status) {
+						console.log(data);
+						$scope.contatos  = data;
+					})
+			}
+			
+			var carregarOperadoras =function(){
+				$http.get('http://localhost:8080/listaTelefonica/operadoras')
+					.success(function (data, status) {
+						console.log(data);
+						$scope.operadoras = data;
+					})
+			}
 			//get -> Obter recursos || post -> Criar entidade 
 			//poderiamos estar passando variavel por variavel, mas podemos criar
         	//uma abstracao, que no caso pode ser contato, contendo nome e telefone
         	// $scope.adicionarContato = function(nome, telefone) {
 			$scope.adicionarContato =function(contato) {
-				$scope.contatos.push(contato);
-				$scope.contato = {};
-				$scope.contatoForm.$setPristine();
+				contato.data = new Date();
+				$http.post('http://localhost:8080/listaTelefonica/contatos', contato)
+					.success(function (data) {
+						delete $scope.contato;
+						$scope.contatoForm.$setPristine();
+						carregarContatos();
+					});
 			};
+
 			$scope.apagarContatos = function (contatos) {
 				//filtrando os contatos selecionados com filter
 				// var contatosSelecionados = contatos.filter(function(contato){
@@ -76,7 +87,8 @@
 			$scope.ordenarPor = function (campo) {
 				$scope.criterioDeOrdenacao = campo;
 			};
-
+			carregarContatos();
+			carregarOperadoras();
 		});
 	</script>
 </head>
@@ -131,14 +143,16 @@
 				<option value="">Selecione uma operadora</option>
 			</select>
 		</form>  
-		<div ng-show="contatoForm.nome.$dirty" ng-messages="contatoForm.nome.$error" class="alert alert-danger">
-			<div ng-message="required">
+		<div ng-show="contatoForm.nome.$dirty" ng-messages="contatoForm.nome.$error">
+			<div ng-message="required" class="alert alert-danger">
 				Por favor preencha o campo nome!
 			</div>
-			<div ng-message="minlength" class="class=" alert alert-danger "">
+			<div ng-message="minlength" class="alert alert-danger">
 				O campo nome deve ter no mínimo 10 caracteres!
 			</div>
 		</div>
+
+
 		<div ng-show="contatoForm.telefone.$dirty" ng-messages="contatoForm.telefone.$error">
 			<div ng-message="required"  class="alert alert-danger">
 			Por favor preencha o campo telefone!
