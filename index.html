@@ -36,12 +36,15 @@
 			$scope.app = "Lista Telefonica";
 			$scope.contatos  = [];
 			$scope.operadoras = [];
+			$scope.messag = {};
 
 			var carregarContatos =function () {
 				$http.get('http://localhost:8080/listaTelefonica/contatos')
 					.success(function (data, status) {
 						console.log(data);
 						$scope.contatos  = data;
+					}).error(function(data) {
+						$scope.message = "Aconteceu um problema: " + data;
 					})
 			}
 			
@@ -50,7 +53,9 @@
 					.success(function (data, status) {
 						console.log(data);
 						$scope.operadoras = data;
-					})
+					}).error(function (data, status) {
+						$scope.message = "Aconteceu um problema: " + data;
+					});
 			}
 			//get -> Obter recursos || post -> Criar entidade 
 			//poderiamos estar passando variavel por variavel, mas podemos criar
@@ -63,7 +68,9 @@
 						delete $scope.contato;
 						$scope.contatoForm.$setPristine();
 						carregarContatos();
-					});
+					}).error(function(data) {
+						$scope.message = "Aconteceu um problema: " + data;
+					})
 			};
 
 			$scope.apagarContatos = function (contatos) {
@@ -95,6 +102,7 @@
 <body ng-controller="listaTelefonicaCtrl">
 	<div class="jumbotron">
 		<h3>{{app}}</h3>
+		{{message}}
 		<input class="form-control" type="text" ng-model="criterioDeBusca" placeholder="O que você esta buscando?"/>
 		<table class="table table-striped" ng-show="contatos.length > 0">
 			<tr>
@@ -112,7 +120,7 @@
 			<!--selecionado: contato.selecionado = esse selecinado é para ele ficar amarelo-->
 			<!--adicionando o filter:{nome: criterioDeBusca} ele ja consegue fazer a busca pelo criterioDeBusca(campo do input)-->
 			<!--orderBy -> ordenação-->
-			<tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos | limitTo:2 | filter:{nome: criterioDeBusca} | orderBy:criterioDeOrdenacao">
+			<tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos | filter:{nome: criterioDeBusca} | orderBy:criterioDeOrdenacao">
 				<td><input type="checkbox" ng-model="contato.selecionado"/></td>
 				<td>{{contato.nome}}</td>
 				<td>{{contato.telefone}}</td>
