@@ -24,9 +24,9 @@ public class ListaTelefonicaService {
 		Operadora gvt = new Operadora("gvt", "25", "fixo", 1);
 		Operadora embratel = new Operadora("embratel", "21", "fixo", 2);
 
-		List<Contato> contatosCriados = Arrays.asList(new Contato("Bruno", "9999-2222", new Date(), oi),
-				new Contato("Sandra", "9934-5554", new Date(), vivo),
-				new Contato("Mariana", "9922-0468", new Date(), tim));
+		List<Contato> contatosCriados = Arrays.asList(new Contato("111dddddddddaaaasscs", "Bruno", "9999-2222", new Date(), oi),
+				new Contato("111dddddddddaaaasscs", "Sandra", "9934-5554", new Date(), vivo),
+				new Contato("111dddddddddaaaasscs", "Mariana", "9922-0468", new Date(), tim));
 
 		contatos.addAll(contatosCriados);
 	}

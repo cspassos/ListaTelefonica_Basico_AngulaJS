@@ -7,6 +7,8 @@ public class Contato {
 	private String nome;
 
 	private String telefone;
+	
+	private String serial;
 
 	private Date data;
 
@@ -15,7 +17,8 @@ public class Contato {
 	public Contato() {
 	}
 
-	public Contato(String nome, String telefone, Date data, Operadora operadora) {
+	public Contato(String serial, String nome, String telefone, Date data, Operadora operadora) {
+		this.serial = serial;
 		this.nome = nome;
 		this.telefone = telefone;
 		this.data = data;
@@ -52,6 +55,14 @@ public class Contato {
 
 	public void setOperadora(Operadora operadora) {
 		this.operadora = operadora;
+	}
+
+	public String getSerial() {
+		return serial;
+	}
+
+	public void setSerial(String serial) {
+		this.serial = serial;
 	}
 
 }
